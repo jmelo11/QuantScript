@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Archivos de origen">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Archivos de encabezado">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Archivos de recursos">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="models">
+      <UniqueIdentifier>{2f87128a-9197-4941-a9c4-cdcbd4bb2c4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nodes">
+      <UniqueIdentifier>{dab7f2c7-2e2b-40d3-bd31-1a41b238e7ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="visitors">
+      <UniqueIdentifier>{30790e58-4026-47fc-b106-8396055b0f34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parser">
+      <UniqueIdentifier>{a7fd0e09-1344-425b-af3b-7692bb790243}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aad">
+      <UniqueIdentifier>{23d6ac43-c499-4fec-b0b5-c7df1f149e3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="products">
+      <UniqueIdentifier>{2b266385-eb3f-452d-8abf-163eafd0c247}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="QuantScript\models\models.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\nodes\nodes.cpp">
+      <Filter>nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\visitors\visitor.cpp">
+      <Filter>visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\parser\parser.cpp">
+      <Filter>parser</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\aad\aad.cpp">
+      <Filter>aad</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\product\product.cpp">
+      <Filter>products</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\visitors\debugger.cpp">
+      <Filter>visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\visitors\definitionindexer.cpp">
+      <Filter>visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\visitors\evaluator.cpp">
+      <Filter>visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\visitors\solverevaluator.cpp">
+      <Filter>visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\visitors\varindexer.cpp">
+      <Filter>visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantScript\main\QuantScript.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Test\TEST_product.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="Test\TEST_solver.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\models\models.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\visitors\solverevaluator.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\nodes\nodes.h">
+      <Filter>nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\visitors\visitor.h">
+      <Filter>visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\parser\parser.h">
+      <Filter>parser</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\aad\aad.h">
+      <Filter>aad</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\product\product.h">
+      <Filter>products</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\visitors\debugger.h">
+      <Filter>visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\visitors\definitionindexer.h">
+      <Filter>visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\visitors\evaluator.h">
+      <Filter>visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\others\gaussians.h">
+      <Filter>visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantScript\visitors\varindexer.h">
+      <Filter>visitors</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
+</Project>
