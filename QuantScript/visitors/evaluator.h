@@ -73,12 +73,12 @@ namespace QuantScript {
             myDStack.pop();
             return res;
         };
-        std::pair < bool, bool> pop2b() {
-            auto res;
+        std::pair<bool, bool> pop2b() {
+            std::pair<bool, bool> res;
             res.first = myBStack.top();
-            myDStack.pop();
+            myBStack.pop();
             res.second = myBStack.top();
-            myDStack.pop();
+            myBStack.pop();
             return res;
         };
 

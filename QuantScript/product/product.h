@@ -8,6 +8,7 @@
 
 
 #include <boost/math/tools/minima.hpp>
+#include <cstdint>
 #include <functional>
 #include <iostream>
 
@@ -57,8 +58,8 @@ namespace QuantScript {
                 int bits = std::numeric_limits<double>::digits / 2;
                 std::streamsize prec = static_cast<int>(2 + sqrt(bits));  // Number of significant decimal digits.
                 std::streamsize precision = std::cout.precision(prec); // Save.
-                const boost::uintmax_t maxit = 20;
-                boost::uintmax_t it = maxit;
+                const std::uintmax_t maxit = 20;
+                std::uintmax_t it = maxit;
                
                 double bracket_min = -500.0;
                 double bracket_max = 500.0;
