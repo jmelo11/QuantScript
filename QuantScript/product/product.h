@@ -6,132 +6,92 @@
 #include "models/models.h"
 #include "parser/parser.h"
 
-
-#include <boost/math/tools/minima.hpp>
 #include <cstdint>
 #include <functional>
 #include <iostream>
 
-using boost::math::tools::brent_find_minima;
-
-namespace QuantScript {
+namespace QuantScript
+{
     class ObjFunc;
 
-    class Product {
+    class Product
+    {
         std::vector<Date> myEventDates;
         std::vector<Event> myEvents;
         std::vector<std::string> myVariables;
-    
+
     public:
-        const std::vector<Date>& eventDates();
-        void visit(Visitor& visitor);
+        const std::vector<Date> &eventDates();
+        void visit(Visitor &visitor);
         void indexVariables();
-        template<class T>
-        void evaluate(const Scenario<T>& scenario, Evaluator<T>& evaluator) {
-            evaluator.setScenario(& scenario);
-            for (size_t i = 0; i < myEvents.size(); i++) {
+        template <class T>
+        void evaluate(const Scenario<T> &scenario, Evaluator<T> &evaluator)
+        {
+            evaluator.setScenario(&scenario);
+            for (size_t i = 0; i < myEvents.size(); i++)
+            {
                 evaluator.setCurrentEvent(i);
-                for (auto& statement : myEvents[i]) {
+                for (auto &statement : myEvents[i])
+                {
                     evaluator.visit(statement);
                 };
             };
         };
 
-        template <class T>
-        void solve(const Scenario<T>& scenario, Evaluator<T>& evaluator, SolverEvaluator<T>& solver) {
-            // Solver reference: https://www.boost.org/doc/libs/1_63_0/libs/math/doc/html/math_toolkit/roots/brent_minima.html  
-
-            //initialize solverevaluator
-            solver.init(myVariables);
-            for (size_t i = 0; i < myEvents.size(); i++) {
-                for (auto& statement : myEvents[i]) {
-                    solver.visit(statement);
-                };
-            };
-
-            //setup obj function
-            ObjFunc Func(this);
-            auto f = std::bind(Func, std::placeholders::_1, scenario, evaluator, solver);
-
-            try{ 
-                // Always use try'n'catch blocks with Boost.Math to get any error messages.
-                int bits = std::numeric_limits<double>::digits / 2;
-                std::streamsize prec = static_cast<int>(2 + sqrt(bits));  // Number of significant decimal digits.
-                std::streamsize precision = std::cout.precision(prec); // Save.
-                const std::uintmax_t maxit = 20;
-                std::uintmax_t it = maxit;
-               
-                double bracket_min = -500.0;
-                double bracket_max = 500.0;
-
-                std::pair<T, T> r = brent_find_minima(f, bracket_min, bracket_max, bits, it);
-                std::cout << solver.getTargetVariable() + " at minimum = " << r.first << ", f(" << r.first << ") = " << r.second;
-                if (it < maxit)
-                {
-                    std::cout << ",\n  met " << bits << " bits precision" << ", after " << it << " iterations." << std::endl;
-                }
-                else
-                {
-                    std::cout << ",\n  did NOT meet " << bits << " bits precision" << " after " << it << " iterations!" << std::endl;
-                }
-                //after finding optimal value, update value and store results in evaluator.
-                solver.update(r.first);
-                evaluate(scenario, evaluator);
-            }
-            catch (const std::exception& e){ // Always useful to include try & catch blocks because default policies
-              // are to throw exceptions on arguments that cause errors like underflow, overflow.
-              // Lacking try & catch blocks, the program will abort without a message below,
-              // which may give some helpful clues as to the cause of the exception.
-                std::cout <<  "\n""Message from thrown exception was:\n   " << e.what() << std::endl;
-            }
-        };
-
-        //Return variable names
+        // Return variable names
         std::vector<std::string> varNames();
-        //Evaluator Factory
+        // Evaluator Factory
         template <class T>
-        std::unique_ptr<Evaluator<T>> buildEvaluator() {
+        std::unique_ptr<Evaluator<T>> buildEvaluator()
+        {
             // Move
             return std::unique_ptr<Evaluator<T>>(new Evaluator<T>(myVariables.size()));
         };
         // Scenario factory
         template <class T>
-        std::unique_ptr<Scenario<T>> buildScenario() {
+        std::unique_ptr<Scenario<T>> buildScenario()
+        {
             // Move
             return std::unique_ptr<Scenario<T>>(new Scenario<T>(myEventDates.size()));
-        }; 
+        };
         // Solver factory
         template <class T>
-        std::unique_ptr<SolverEvaluator<T>> buildSolver(std::string target, T value) {
+        std::unique_ptr<SolverEvaluator<T>> buildSolver(std::string target, T value)
+        {
             // Move
             return std::unique_ptr<SolverEvaluator<T>>(new SolverEvaluator<T>(target, value));
         };
 
         // Event Parser
         template <class EventIt>
-        void parseEvents(EventIt begin, EventIt end) {
-            for (EventIt evtIt = begin; evtIt != end; ++evtIt) {
+        void parseEvents(EventIt begin, EventIt end)
+        {
+            for (EventIt evtIt = begin; evtIt != end; ++evtIt)
+            {
                 // Copy event date
                 myEventDates.push_back(evtIt->first);
                 // Parse event string
                 myEvents.push_back(parse(evtIt->second));
             };
-        };;
+        };
+        ;
     };
 
-    //Aux class for solver method
+    // Aux class for solver method
     class ObjFunc
     {
-        Product* myProduct;
-    public:        
-        ObjFunc(Product* prod): myProduct(prod) {};
+        Product *myProduct;
+
+    public:
+        ObjFunc(Product *prod) : myProduct(prod) {};
         template <class T>
-        double operator()(T const& x, const Scenario<T>& scenario, Evaluator<T>& evaluator, SolverEvaluator<T>& solver){
+        double operator()(T const &x, const Scenario<T> &scenario, Evaluator<T> &evaluator, SolverEvaluator<T> &solver)
+        {
             solver.update(x);
             myProduct->evaluate(scenario, evaluator);
             std::vector<T> varValues = evaluator.varVals();
             evaluator.init();
-            return std::pow(varValues[solver.getTargetIndex()]-solver.getTargetValue(),2);
+            return std::pow(varValues[solver.getTargetIndex()] - solver.getTargetValue(), 2);
         }
     };
 }

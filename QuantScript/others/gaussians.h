@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cmath>
-#define EPS 1.0e-08
+#include "config.hpp"
+
 //  Gaussian functions
 //  Normal density
 inline double normalDens(const double x)
@@ -13,9 +14,12 @@ inline double normalDens(const double x)
 //  See https://en.wikipedia.org/wiki/Normal_distribution#Numerical_approximations_for_the_normal_CDF
 inline double normalCdf(const double x)
 {
-	if (x < -10.0) return 0.0;
-	if (x > 10.0) return 1.0;
-	if (x < 0.0) return 1.0 - normalCdf(-x);
+	if (x < -10.0)
+		return 0.0;
+	if (x > 10.0)
+		return 1.0;
+	if (x < 0.0)
+		return 1.0 - normalCdf(-x);
 
 	static constexpr double p = 0.2316419;
 	static constexpr double b1 = 0.319381530;

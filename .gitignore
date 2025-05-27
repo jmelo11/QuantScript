@@ -2,9 +2,5 @@
 # Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
 ################################################################################
 
-/x64/Debug
-/.vs
-/External/boost
-/External/QuantLib
-/QuantScript/.vs/QuantScript/v16/ipch/AutoPCH/4cb4a070097bdc40
-/QuantScript/.vs/QuantScript/v16
+/build/*
+/CMakeFiles/*

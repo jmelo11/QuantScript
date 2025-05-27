@@ -2,35 +2,37 @@
 #include "visitor.h"
 #include "models/models.h"
 #include <cmath>
+#include "config.hpp"
 
-#define EPS 1.0e-15
-namespace QuantScript {
+namespace QuantScript
+{
 
-	template<class T>
-	class Evaluator : public ConstVisitor {
-		std::vector<T> myVariables;
+    template <class T>
+    class Evaluator : public ConstVisitor
+    {
+        std::vector<T> myVariables;
         std::vector<T> myDefinitions;
-		quickStack<bool> myBStack;
-		quickStack<T> myDStack; 
+        quickStack<bool> myBStack;
+        quickStack<T> myDStack;
         bool myLhsVar = false;
-        T* myLhsVarAddr;
+        T *myLhsVarAddr;
 
-        const Scenario<T>* myScenario;
+        const Scenario<T> *myScenario;
         size_t myCurrentEvent;
 
-	public:
-        
-		~Evaluator() {};
+    public:
+        ~Evaluator() {};
         Evaluator(size_t nVar) : myVariables(nVar) {};
-        Evaluator(const Evaluator& rhs) : myVariables(rhs.myVariables) {}
-        Evaluator& operator=(const Evaluator& rhs)
+        Evaluator(const Evaluator &rhs) : myVariables(rhs.myVariables) {}
+        Evaluator &operator=(const Evaluator &rhs)
         {
-            if (this == &rhs) return *this;
+            if (this == &rhs)
+                return *this;
             myVariables = rhs.myVariables;
             return *this;
         }
-        Evaluator(Evaluator&& rhs) : myVariables(move(rhs.myVariables)) {}
-        Evaluator& operator=(Evaluator&& rhs)
+        Evaluator(Evaluator &&rhs) : myVariables(move(rhs.myVariables)) {}
+        Evaluator &operator=(Evaluator &&rhs)
         {
             myVariables = move(rhs.myVariables);
             return *this;
@@ -38,34 +40,42 @@ namespace QuantScript {
         // (Re-)initialize before evaluation in each scenario
         void init()
         {
-            for (auto& varIt : myVariables) varIt = 0.0;
+            for (auto &varIt : myVariables)
+                varIt = 0.0;
             // Stacks should be empty, if this is not the case we empty them
             // without affecting capacity for added performance
-            while (!myDStack.empty()) myDStack.pop();
-            while (!myBStack.empty()) myBStack.pop();
+            while (!myDStack.empty())
+                myDStack.pop();
+            while (!myBStack.empty())
+                myBStack.pop();
             myLhsVar = false;
             myLhsVarAddr = nullptr;
         }
 
-        std::vector<T> varVals() {
+        std::vector<T> varVals()
+        {
             return myVariables;
         };
-      
-        void reverseVisitArguments(const Node& node) {
-            //visit all arguments, right to left
+
+        void reverseVisitArguments(const Node &node)
+        {
+            // visit all arguments, right to left
             for (auto it = node.arguments.rbegin(); it != node.arguments.rend(); ++it)
                 (*it)->acceptVisitor(*this);
         };
 
-        void setScenario(const Scenario<T>* scenario) {
+        void setScenario(const Scenario<T> *scenario)
+        {
             myScenario = scenario;
         };
-        void setCurrentEvent(size_t currentEvent) {
+        void setCurrentEvent(size_t currentEvent)
+        {
             myCurrentEvent = currentEvent;
         };
 
-        //Aux
-        std::pair < T, T> pop2() {
+        // Aux
+        std::pair<T, T> pop2()
+        {
             std::pair<T, T> res;
             res.first = myDStack.top();
             myDStack.pop();
@@ -73,7 +83,8 @@ namespace QuantScript {
             myDStack.pop();
             return res;
         };
-        std::pair<bool, bool> pop2b() {
+        std::pair<bool, bool> pop2b()
+        {
             std::pair<bool, bool> res;
             res.first = myBStack.top();
             myBStack.pop();
@@ -82,117 +93,138 @@ namespace QuantScript {
             return res;
         };
 
-        //Nodes
-        void visitUplus(const NodeUplus& node) {
+        // Nodes
+        void visitUplus(const NodeUplus &node)
+        {
             reverseVisitArguments(node);
         };
-        void visitUminus(const NodeUminus& node) {
+        void visitUminus(const NodeUminus &node)
+        {
             reverseVisitArguments(node);
             myDStack.top() *= -1;
         };
-        void visitAdd(const NodeAdd& node) {
+        void visitAdd(const NodeAdd &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myDStack.push(res.first + res.second);
         };
-        void visitSubtract(const NodeSubtract& node) {
+        void visitSubtract(const NodeSubtract &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myDStack.push(res.first - res.second);
         };
-        void visitMult(const NodeMult& node) {
+        void visitMult(const NodeMult &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myDStack.push(res.first * res.second);
         };
-        void visitDiv(const NodeDiv& node) {
+        void visitDiv(const NodeDiv &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myDStack.push(res.first / res.second);
         };
 
-        //Advanced
-        void visitPow(const NodePow& node) {
+        // Advanced
+        void visitPow(const NodePow &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myDStack.push(pow(res.first, res.second));
         };
-        void visitLog(const NodeLog& node) {
+        void visitLog(const NodeLog &node)
+        {
             reverseVisitArguments(node);
             auto res = log(myDStack.top());
             myDStack.pop();
             myDStack.push(res);
         };
-        void visitSqrt(const NodeSqrt& node) {
+        void visitSqrt(const NodeSqrt &node)
+        {
             reverseVisitArguments(node);
             auto res = sqrt(myDStack.top());
             myDStack.pop();
             myDStack.push(res);
         };
-        void visitMax(const NodeMax& node) {
+        void visitMax(const NodeMax &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myDStack.push(std::max(res.first, res.second));
         };
-        void visitMin(const NodeMin& node) {
+        void visitMin(const NodeMin &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myDStack.push(std::min(res.first, res.second));
         };
 
-        //Logic
-        void visitAssign(const NodeAssign& node) {
+        // Logic
+        void visitAssign(const NodeAssign &node)
+        {
 
             myLhsVar = true;
-            node.arguments[0]->acceptVisitor(*this); //left
+            node.arguments[0]->acceptVisitor(*this); // left
 
             myLhsVar = false;
-            node.arguments[1]->acceptVisitor(*this); //right
+            node.arguments[1]->acceptVisitor(*this); // right
             *myLhsVarAddr = myDStack.top();
             myDStack.pop();
         };
-        void visitEqual(const NodeEqual& node) {
+        void visitEqual(const NodeEqual &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(fabs(res.first - res.second) < EPS);
         };
-        void visitDifferent(const NodeDifferent& node) {
+        void visitDifferent(const NodeDifferent &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(fabs(res.first - res.second) > EPS);
         };
-        void visitSuperior(const NodeSuperior& node) {
+        void visitSuperior(const NodeSuperior &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(res.first > res.second + EPS);
         };
-        void visitSupEqual(const NodeSupEqual& node) {
+        void visitSupEqual(const NodeSupEqual &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(res.first > res.second - EPS);
         };
-        void visitInferior(const NodeInferior& node) {
+        void visitInferior(const NodeInferior &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(res.first < res.second - EPS);
         };
-        void visitInfEqual(const NodeInfEqual& node) {
+        void visitInfEqual(const NodeInfEqual &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(res.first < res.second + EPS);
         };
-        void visitAnd(const NodeAnd& node) {
+        void visitAnd(const NodeAnd &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(res.first && res.second);
         };
-        void visitOr(const NodeOr& node) {
+        void visitOr(const NodeOr &node)
+        {
             reverseVisitArguments(node);
             auto res = pop2();
             myBStack.push(res.first || res.second);
         };
 
-        void visitIf(const NodeIf& node) {
+        void visitIf(const NodeIf &node)
+        {
             // Visit the condition
             node.arguments[0]->acceptVisitor(*this);
             // Pick the result
@@ -202,9 +234,7 @@ namespace QuantScript {
             if (isTrue)
             {
                 const auto lastTrue =
-                    node.firstElse == -1 ?
-                    node.arguments.size() - 1 :
-                    node.firstElse - 1;
+                    node.firstElse == -1 ? node.arguments.size() - 1 : node.firstElse - 1;
                 for (auto i = 1; i <= lastTrue; ++i)
                 {
                     node.arguments[i]->acceptVisitor(*this);
@@ -218,14 +248,18 @@ namespace QuantScript {
                 }
             };
         };
-        void visitSpot(const NodeSpot& node) {
+        void visitSpot(const NodeSpot &node)
+        {
             myDStack.push((*myScenario)[myCurrentEvent].spot);
         };
-        void visitConst(const NodeConst& node) {
+        void visitConst(const NodeConst &node)
+        {
             myDStack.push(node.value);
         };
-        void visitVar(const NodeVar& node) {
-            if (myLhsVar) {
+        void visitVar(const NodeVar &node)
+        {
+            if (myLhsVar)
+            {
                 // Record address in myLhsVarAdr
                 myLhsVarAddr = &myVariables[node.index];
             }
@@ -234,8 +268,9 @@ namespace QuantScript {
                 // Push value onto the stack
                 myDStack.push(myVariables[node.index]);
             };
-        };        
-        void visitPays(const NodePays& node) {
+        };
+        void visitPays(const NodePays &node)
+        {
             myLhsVar = true;
             node.arguments[0]->acceptVisitor(*this);
             myLhsVar = false;
@@ -246,12 +281,14 @@ namespace QuantScript {
             myDStack.pop();
         }
 
-        //Custom
-        void visitSolver(const NodeSolver& node) {
+        // Custom
+        void visitSolver(const NodeSolver &node)
+        {
             myDStack.push(node.value);
         };
-        void visitDefinition(const NodeDefinition& node) {
+        void visitDefinition(const NodeDefinition &node)
+        {
             myDStack.push(myDefinitions[node.index]);
         };
-	};
+    };
 }
