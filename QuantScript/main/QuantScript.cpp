@@ -54,8 +54,8 @@ void test_solver() {
 	//solve for variables
 
 	//display results
-	vector values = evaluator->varVals();
-	vector var_names = prod.varNames();
+        vector<double> values = evaluator->varVals();
+        vector<string> var_names = prod.varNames();
 	for (size_t i = 0; i < values.size(); i++) {
 		cout << var_names[i] << ": " << values[i] << endl;
 	};

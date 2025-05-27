@@ -1,6 +1,7 @@
 #pragma once
 #include "visitors/visitor.h"
 #include "visitors/evaluator.h"
+#include <algorithm>
 
 
 namespace QuantScript {

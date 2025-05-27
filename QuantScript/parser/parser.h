@@ -26,7 +26,7 @@ namespace QuantScript {
 	public:
 		// Statement = ExprTree = unique_ptr<Node>
 		static Statement parseStatement(TokIt& cur, const TokIt end) {
-			// Check for instructions of type 1, so far only ’if’
+			// Check for instructions of type 1, so far only â€™ifâ€™
 			if (*cur == "IF") return parseIf(cur, end);
 			// Parse cur as a variable
 			auto lhs = parseVar(cur);
@@ -53,12 +53,12 @@ namespace QuantScript {
 			++cur;
 			// Check for end
 			if (cur == end)
-				throw script_error("’If’ is not followed by ’then’");
+				throw script_error("â€™Ifâ€™ is not followed by â€™thenâ€™");
 			// Parse the condition
 			auto cond = parseCondElem(cur, end);
 			// Check that the next token is "then"
 			if (cur == end || *cur != "THEN")
-				throw script_error("’If’ is not followed by ’then’");
+				throw script_error("â€™Ifâ€™ is not followed by â€™thenâ€™");
 			// Advance over "then"
 			++cur;
 			// Parse statements until we hit "else" or "endIf"
@@ -67,7 +67,7 @@ namespace QuantScript {
 				stats.push_back(parseStatement(cur, end));
 			// Check
 			if (cur == end)
-				throw script_error("’If/then’ is not followed by ’else’ or ’endIf’");
+				throw script_error("â€™If/thenâ€™ is not followed by â€™elseâ€™ or â€™endIfâ€™");
 			// Else: parse the else statements
 			std::vector<Statement> elseStats;
 			int elseIdx = -1;
@@ -80,7 +80,7 @@ namespace QuantScript {
 					elseStats.push_back(parseStatement(cur, end));
 				if (cur == end)
 					throw script_error
-					("’If/then/else’ is not followed by ’endIf’");
+					("â€™If/then/elseâ€™ is not followed by â€™endIfâ€™");
 				// Record else index
 				elseIdx = stats.size() + 1;
 			}
@@ -174,12 +174,12 @@ namespace QuantScript {
 		static ExpressionTree parseCondL2(TokIt& cur, const TokIt end) {
 			// First parse the leftmost elem or parenthesed condition
 			auto lhs = parseParentheses<Parser<TokIt>::parseCond, Parser<TokIt>::parseCondElem>(cur, end);
-			// Do we have an ’and’?
+				lhs = buildBinary<NodeAnd>(lhs, rhs);
 			while (cur != end && *cur == "AND")
 			{
-				// Advance cur over ’and’ and parse the rhs
+				// Advance cur over â€™andâ€™ and parse the rhs
 				++cur;
-				// Should not stop straight after ’and’
+				// Should not stop straight after â€™andâ€™
 				if (cur == end)
 					throw script_error("Unexpected end of statement");
 				// Parse the rhs elem or parenthesed condition
@@ -188,14 +188,14 @@ namespace QuantScript {
 				// store in lhs
 				lhs = Parser<TokIt>::buildBinary<NodeAnd>(lhs, rhs);
 			}
-			// No more ’and’,
+			// No more â€™andâ€™,
 			// so L2 and above were exhausted,
 			// return to check for an or
 			return lhs;
 		};
 		static ExpressionTree parseCondParentheses(TokIt& cur, const TokIt end) {
 			ExpressionTree tree;
-			// Do we have an opening ’(’?
+			// Do we have an opening â€™(â€™?
 			if (*cur == "(")
 			{
 				// Find match
@@ -297,14 +297,14 @@ namespace QuantScript {
 			// because we return a base class pointer
 		};
 		static std::vector<ExpressionTree> parseFuncArg(TokIt& cur, const TokIt end) {
-			// Check that we have a ’(’ and something after that
+			// Check that we have a â€™(â€™ and something after that
 			if ((*cur)[0] != '(')
 				throw script_error("No opening ( following function name");
-			// Find matching ’)’
+			// Find matching â€™)â€™
 			TokIt closeIt = findMatch<'(', ')'>(cur, end);
 			// Parse expressions between parentheses
 			std::vector<ExpressionTree> args;
-			++cur; // Over ’(’
+			++cur; // Over â€™(â€™
 			while (cur != closeIt)
 			{
 				args.push_back(parseExpr(cur, end));
@@ -320,7 +320,7 @@ namespace QuantScript {
 		template <ParseFunc FuncOnMatch, ParseFunc FuncOnNoMatch>
 		static ExpressionTree parseParentheses(TokIt& cur, const TokIt end) {
 			ExpressionTree tree;
-			// Do we have an opening ’(’?
+			// Do we have an opening â€™(â€™?
 			if (*cur == "(")
 			{
 				// Find match
@@ -341,7 +341,7 @@ namespace QuantScript {
 		};
 		
 		static ExpressionTree parseExpr(TokIt& cur, const TokIt end) {
-			// First exhaust all L2 (’*’ and ’/’)
+			// First exhaust all L2 (â€™*â€™ and â€™/â€™)
 			// and above expressions on the lhs
 			auto lhs = parseExprL2(cur, end);
 			// Do we have a match?
@@ -353,7 +353,7 @@ namespace QuantScript {
 				// Should not stop straight after operator
 				if (cur == end)
 					throw script_error("Unexpected end of statement");
-				// Exhaust all L2 (’*’ and ’/’)
+				// Exhaust all L2 (â€™*â€™ and â€™/â€™)
 				// and above expressions on the rhs
 				auto rhs = Parser<TokIt>::parseExprL2(cur, end);
 				// Build node and assign lhs and rhs as its arguments,
@@ -366,7 +366,7 @@ namespace QuantScript {
 			return lhs;
 		};
 		static ExpressionTree parseExprL2(TokIt& cur, const TokIt end) {
-			// First exhaust all L3 (’^’)
+			// First exhaust all L3 (â€™^â€™)
 			// and above expressions on the lhs
 			auto lhs = parseExprL3(cur, end);
 			// Do we have a match?
@@ -378,7 +378,7 @@ namespace QuantScript {
 				// Should not stop straight after operator
 				if (cur == end)
 					throw script_error("Unexpected end of statement");
-				// Exhaust all L3 (’^’) and above expressions on the rhs
+				// Exhaust all L3 (â€™^â€™) and above expressions on the rhs
 
 				auto rhs = Parser<TokIt>::parseExprL3(cur, end);
 				// Build node and assign lhs and rhs as its arguments,
@@ -426,7 +426,7 @@ namespace QuantScript {
 				// to support multiple unaries in a row
 				auto rhs = parseExprL4(cur, end);
 				// Build node and assign rhs as its (only) argument
-				auto top = op == ' + ' ?
+				auto top = op == '+' ?
 					make_base_node<NodeUplus>() :
 					make_base_node<NodeUminus>();
 				top->arguments.resize(1);
