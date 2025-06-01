@@ -1,0 +1,359 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-msvc-base",
+      "hidden": true,
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-msvc-x64"
+        }
+      }
+    },
+    {
+      "name": "windows-clang-base",
+      "hidden": true,
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-cl.exe"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64"
+        }
+      }
+    },
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
+          "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
+        },
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "linux-gcc-x64",
+          "hostOS": [
+            "Linux"
+          ]
+        }
+      }
+    },
+    {
+      "name": "linux-gcc-base",
+      "hidden": true,
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "linux-clang-base",
+      "hidden": true,
+      "inherits": "linux-base",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "apple-arm64-base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "architecture": {
+          "value": "arm64",
+          "strategy": "external"
+      },
+      "condition": {
+          "type": "equals",
+          "lhs": "${hostSystemName}",
+          "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "ninja",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+    {
+      "name": "make",
+      "hidden": true,
+      "generator": "Unix Makefiles"
+    },
+    {
+      "name": "_release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "_debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "_relwithdebinfo",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "linux-clang-debug",
+      "inherits": [
+        "linux-clang-base",
+        "make",
+        "_debug"
+      ]
+    },
+    {
+      "name": "linux-clang-release",
+      "inherits": [
+        "linux-clang-base",
+        "make",
+        "_release"
+      ]
+    },
+    {
+      "name": "linux-clang-relwithdebinfo",
+      "inherits": [
+        "linux-clang-base",
+        "make",
+        "_relwithdebinfo"
+      ]
+    },
+    {
+      "name": "linux-gcc-debug",
+      "inherits": [
+        "linux-gcc-base",
+        "make",
+        "_debug"
+      ]
+    },
+    {
+      "name": "linux-gcc-release",
+      "inherits": [
+        "linux-gcc-base",
+        "make",
+        "_release"
+      ]
+    },
+    {
+      "name": "linux-gcc-relwithdebinfo",
+      "inherits": [
+        "linux-gcc-base",
+        "make",
+        "_relwithdebinfo"
+      ]
+    },
+    {
+      "name": "linux-clang-ninja-debug",
+      "inherits": [
+        "ninja",
+        "linux-clang-debug"
+      ]
+    },
+    {
+      "name": "linux-clang-ninja-release",
+      "inherits": [
+        "ninja",
+        "linux-clang-release"
+      ]
+    },
+    {
+      "name": "linux-clang-ninja-relwithdebinfo",
+      "inherits": [
+        "ninja",
+        "linux-clang-relwithdebinfo"
+      ]
+    },
+    {
+      "name": "linux-gcc-ninja-debug",
+      "inherits": [
+        "ninja",
+        "linux-gcc-debug"
+      ]
+    },
+    {
+      "name": "linux-gcc-ninja-release",
+      "inherits": [
+        "ninja",
+        "linux-gcc-release"
+      ]
+    },
+    {
+      "name": "linux-gcc-ninja-relwithdebinfo",
+      "inherits": [
+        "ninja",
+        "linux-gcc-relwithdebinfo"
+      ]
+    },
+    {
+      "name": "linux-gcc-debug-with-clang-tidy",
+      "inherits": [
+        "linux-gcc-debug"
+      ],
+      "cacheVariables": {
+        "QL_CLANG_TIDY_OPTIONS": "-warnings-as-errors=*",
+        "QL_USE_CLANG_TIDY": "ON"
+      }
+    },
+    {
+      "name": "windows-clang-release",
+      "inherits": [
+        "windows-clang-base",
+        "ninja",
+        "_release"
+      ]
+    },
+    {
+      "name": "windows-clang-debug",
+      "inherits": [
+        "windows-clang-base",
+        "ninja",
+        "_debug"
+      ]
+    },
+    {
+      "name": "windows-clang-relwithdebinfo",
+      "inherits": [
+        "windows-clang-base",
+        "ninja",
+        "_relwithdebinfo"
+      ]
+    },
+    {
+      "name": "windows-msvc-release",
+      "inherits": [
+        "windows-msvc-base",
+        "ninja",
+        "_release"
+      ]
+    },
+    {
+      "name": "windows-msvc-debug",
+      "inherits": [
+        "windows-msvc-base",
+        "ninja",
+        "_debug"
+      ]
+    },
+    {
+      "name": "windows-msvc-relwithdebinfo",
+      "inherits": [
+        "windows-msvc-base",
+        "ninja",
+        "_relwithdebinfo"
+      ]
+    },
+    {
+      "name": "linux-ci-build-with-clang-tidy",
+      "inherits": [
+        "linux-gcc-debug"
+      ],
+      "cacheVariables": {
+        "BOOST_ROOT": "/usr",
+        "CMAKE_UNITY_BUILD": "ON",
+        "QL_CLANG_TIDY": "clang-tidy-19",
+        "QL_CLANG_TIDY_OPTIONS": "-quiet;-fix",
+        "QL_USE_CLANG_TIDY": "ON",
+        "QL_USE_STD_CLASSES": "ON"
+      }
+    },
+    {
+      "name": "linux-ci-build-with-nonstandard-options",
+      "inherits": [
+        "linux-gcc-ninja-release"
+      ],
+      "cacheVariables": {
+        "BOOST_ROOT": "/usr",
+        "BUILD_SHARED_LIBS": false,
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "QL_ENABLE_SESSIONS": "ON",
+        "QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN": "ON",
+        "QL_HIGH_RESOLUTION_DATE": "ON",
+        "QL_FASTER_LAZY_OBJECTS": "OFF",
+        "QL_THROW_IN_CYCLES": "ON",
+        "QL_NULL_AS_FUNCTIONS": "ON",
+        "QL_USE_INDEXED_COUPON": "ON",
+        "QL_USE_STD_SHARED_PTR": "ON",
+        "QL_USE_STD_ANY": "OFF",
+        "QL_USE_STD_OPTIONAL": "OFF",
+        "QL_COMPILE_WARNING_AS_ERROR": "ON"
+      }
+    },
+    {
+      "name": "windows-ci-build-with-nonstandard-options",
+      "inherits": [
+        "windows-msvc-release"
+      ],
+      "cacheVariables": {
+        "CMAKE_UNITY_BUILD": "ON",
+        "QL_ENABLE_SESSIONS": "ON",
+        "QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN": "ON",
+        "QL_HIGH_RESOLUTION_DATE": "ON",
+        "QL_FASTER_LAZY_OBJECTS": "OFF",
+        "QL_THROW_IN_CYCLES": "ON",
+        "QL_NULL_AS_FUNCTIONS": "ON",
+        "QL_USE_INDEXED_COUPON": "ON",
+        "QL_USE_STD_SHARED_PTR": "ON",
+        "QL_USE_STD_ANY": "OFF",
+        "QL_USE_STD_OPTIONAL": "OFF",
+        "QL_COMPILE_WARNING_AS_ERROR": "ON",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache"
+      }
+    },
+    {
+      "name": "apple-arm64-ninja-debug",
+      "description": "Apple M series preset Debug",
+      "inherits": [
+          "apple-arm64-base",
+          "ninja",
+          "_debug"
+      ]
+    },
+    {
+      "name": "apple-arm64-ninja-release",
+      "description": "Apple M series preset Release",
+      "inherits": [
+          "apple-arm64-base",
+          "ninja",
+          "_release"
+      ]
+    },
+    {
+      "name": "apple-arm64-ninja-relwithdebinfo",
+      "description": "Apple M series preset RelWithDebInfo",
+      "inherits": [
+          "apple-arm64-base",
+          "ninja",
+          "_relwithdebinfo"
+      ]
+    }
+  ]
+}

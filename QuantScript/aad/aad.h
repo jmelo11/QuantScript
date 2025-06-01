@@ -1,351 +1,77 @@
+
+/*
+Written by Antoine Savine in 2018
+
+This code is the strict IP of Antoine Savine
+
+License to use and alter this code for personal and commercial applications
+is freely granted to any person or company who purchased a copy of the book
+
+Modern Computational Finance: AAD and Parallel Simulations
+Antoine Savine
+Wiley, 2018
+
+As long as this comment is preserved at the top of the file
+*/
+
 #pragma once
-#include "others/gaussians.h"
 
-#include <cmath>
-#include <iostream>
-#include <string>
-#include <vector>
+#include <memory>
 
-namespace QuantScript {
-	struct AADNode {
-		/*
-			Automatic differentiation node
-			It stores
-			
-		*/
-		int nargs;
-		int idx1;
-		int idx2;
-		double der1;
-		double der2;
+//  So we can instrument Gaussians like standard math functions
+#include "gaussians.h"
 
-		AADNode() {};
+//  Use traditional AAD of chapter 10 (false)
+//      or expression templated (AADET) of chapter 15 (true)
+#define AADET true
 
-		//pending, setters and getters
-		int firstVarIndex() {
-			return idx1;
-		}
-		void firstVarIndex(int v) {
-			idx2= v;
-		}
+#if AADET
 
-		int firstVarDerivative() {
-			return der1;
-		}
-		void firstVarDerivative(double v) {
-			der1 = v;
-		}
-	};
-	extern std::vector<AADNode> tape;
-	struct AADNumber
+#include "AADExpr.h"
+
+#else
+
+#include "AADNumber.h"
+
+#endif
+
+//  Routines for multi-dimensional AAD (chapter 14)
+//  Set static context for multi-dimensional AAD
+
+//	RAII: reset dimension 1 on destruction
+struct numResultsResetterForAAD
+{
+	~numResultsResetterForAAD()
 	{
-		double value;
-		int idx;
-	
-		AADNumber() {};
-		AADNumber(const double &v): value(v)  {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			idx = tape.size() - 1;
-			node.nargs = 0;
-		};
-
-		//basic operators
-		friend AADNumber operator+(const AADNumber& lhs, const AADNumber& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.idx2 = rhs.idx;
-			node.der1 = 1;
-			node.der2 = 1;
-			node.nargs = 2;
-			AADNumber result;
-			result.value = lhs.value + rhs.value;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber operator-(const AADNumber& lhs, const AADNumber& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.idx2 = rhs.idx;
-			node.der1 = 1;
-			node.der2 = -1;
-			node.nargs = 2;
-			AADNumber result;
-			result.value = lhs.value - rhs.value;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber operator*(const AADNumber& lhs, const AADNumber& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.idx2 = rhs.idx;
-			node.der1 = rhs.value;
-			node.der2 = lhs.value;
-			node.nargs = 2;
-			AADNumber result;
-			result.value = lhs.value * rhs.value;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber operator/(const AADNumber& lhs, const AADNumber& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.idx2 = rhs.idx;
-			node.der1 = 1/rhs.value;
-			node.der2 = -lhs.value/(rhs.value * rhs.value);
-			node.nargs = 2;
-			AADNumber result;
-			result.value = lhs.value / rhs.value;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-
-		AADNumber operator+() const { return AADNumber(0.0) + *this; }
-		AADNumber operator-() const { return AADNumber(0.0) - *this; }
-		AADNumber& operator -=(const AADNumber& rhs) { *this = *this - rhs; return *this; }
-		AADNumber& operator +=(const AADNumber& rhs) { *this = *this + rhs; return *this; }
-		AADNumber& operator /=(const AADNumber& rhs) { *this = *this / rhs; return *this; }
-		AADNumber& operator *=(const AADNumber& rhs) { *this = *this * rhs; return *this; }
-
-		AADNumber& operator ++() { *this = *this + AADNumber(1.0); return *this; }
-		AADNumber& operator --() { *this = *this - AADNumber(1.0); return *this; }
-
-		//logical
-		friend bool operator <(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value<rhs.value; 
-		}
-		friend bool operator >(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value > rhs.value;
-		}
-		friend bool operator <=(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value <= rhs.value;
-		}
-		friend bool operator >=(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value >= rhs.value;
-		}
-		friend bool operator ==(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value == rhs.value;
-		}
-		friend bool operator !=(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value != rhs.value;
-		}
-		friend bool operator &&(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value && rhs.value;
-		}
-		friend bool operator ||(const AADNumber& lhs, const AADNumber& rhs) {
-			return lhs.value || rhs.value;
-		}
-
-		//logical
-		friend bool operator <(const AADNumber& lhs, const double& rhs) {
-			return lhs.value < rhs;
-		}
-		friend bool operator >(const AADNumber& lhs, const double& rhs) {
-			return lhs.value > rhs;
-		}
-		friend bool operator <=(const AADNumber& lhs, const double& rhs) {
-			return lhs.value <= rhs;
-		}
-		friend bool operator >=(const AADNumber& lhs, const double& rhs) {
-			return lhs.value >= rhs;
-		}
-		friend bool operator ==(const AADNumber& lhs, const double& rhs) {
-			return lhs.value == rhs;
-		}
-		friend bool operator !=(const AADNumber& lhs, const double& rhs) {
-			return lhs.value != rhs;
-		}
-		friend bool operator &&(const AADNumber& lhs, const double& rhs) {
-			return lhs.value && rhs;
-		}
-		friend bool operator ||(const AADNumber& lhs, const double& rhs) {
-			return lhs.value || rhs;
-		}
-		
-		//math expressions
-		friend AADNumber exp(const AADNumber& arg) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = arg.idx;
-			node.nargs = 1;
-			AADNumber result;
-			result.value = std::exp(arg.value);
-			node.der1 = result.value;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber fabs(const AADNumber& arg) {
-			tape.push_back(AADNode());
-			AADNumber result;
-			result.value = std::fabs(arg.value);
-			result.idx = tape.size() - 1;
-
-			AADNode& node = tape.back();
-			node.idx1 = arg.idx;
-			node.der1 = arg.value < 0 ? 0 : 1;
-			node.nargs = 1;
-			return result;
-		}
-		friend AADNumber log(const AADNumber& arg) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = arg.idx;
-			node.der1 = 1/arg.value;
-			node.nargs = 1;
-			AADNumber result;
-			result.value = std::log(arg.value);
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber sqrt(const AADNumber& arg) {
-			tape.push_back(AADNode());
-
-			AADNumber result;
-			result.value = std::sqrt(arg.value);
-			result.idx = tape.size() - 1;
-
-			AADNode& node = tape.back();
-			node.idx1 = arg.idx;
-			node.der1 = 0.5 / result.value;
-			node.nargs = 1;
-			return result;
-		}
-		friend std::string to_string(const AADNumber& arg);
-		friend AADNumber pow(const AADNumber& lhs, const AADNumber& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.idx2 = rhs.idx;
-			node.der1 = rhs.value*std::pow(lhs.value, rhs.value-1);
-			node.der2 = std::log(rhs.value)*std::exp(lhs.value*std::log(rhs.value));
-			node.nargs = 2;
-			AADNumber result;
-			result.value = std::pow(lhs.value, rhs.value);
-			result.idx = tape.size() - 1;
-			return result;
-		}
-
-		//operators with doubles
-		friend AADNumber operator+(const AADNumber& lhs, const double& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.der1 = 1;
-			node.nargs = 1;
-			AADNumber result;
-			result.value = lhs.value + rhs;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber operator-(const AADNumber& lhs, const double& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.der1 = 1;
-			node.nargs = 2;
-			AADNumber result;
-			result.value = lhs.value - rhs;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber operator*(const AADNumber& lhs, const double& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.der1 = rhs;
-			node.nargs = 1;
-			AADNumber result;
-			result.value = lhs.value * rhs;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-		friend AADNumber operator/(const AADNumber& lhs, const double& rhs) {
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-			node.idx1 = lhs.idx;
-			node.der1 = 1 / rhs;
-			node.nargs = 1;
-			AADNumber result;
-			result.value = lhs.value / rhs;
-			result.idx = tape.size() - 1;
-			return result;
-		}
-
-		AADNumber& operator -=(const double& rhs) { *this = *this - rhs; return *this; }
-		AADNumber& operator +=(const double& rhs) { *this = *this + rhs; return *this; }
-		AADNumber& operator /=(const double& rhs) { *this = *this / rhs; return *this; }
-		AADNumber& operator *=(const double& rhs) { *this = *this * rhs; return *this; }
-
-		friend std::ostream& operator<<(std::ostream& os, const AADNumber& rhs);
-		friend AADNumber normalDens(const AADNumber& arg)
-		{
-			//  create a new record on tape
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-
-			//  compute result
-			AADNumber result;
-			result.value = normalDens(arg.value);
-
-			//  reference record on tape
-			result.idx = tape.size() - 1;
-
-			//  populate record on tape
-			node.nargs = 1;
-			node.idx1 = arg.idx;
-
-			//  compute derivative
-			node.der1 = -result.value * arg.value;
-
-			return result;
-		}
-		friend AADNumber normalCdf(const AADNumber& arg)
-		{
-			//  create a new record on tape
-			tape.push_back(AADNode());
-			AADNode& node = tape.back();
-
-			//  compute result
-			AADNumber result;
-			result.value = normalCdf(arg.value);
-
-			//  reference record on tape
-			result.idx = tape.size() - 1;
-
-			//  populate record on tape
-			node.nargs = 1;
-			node.idx1 = arg.idx;
-
-			//  compute derivative
-			node.der1 = normalDens(arg.value);
-
-			return result;
-		}
-	};
-	inline std::vector<double> calculateAdjoints(AADNumber& result){
-		//  initialization
-		std::vector<double> adjoints(tape.size(), 0.0);  //  initialize all to 0
-		int N = result.idx;                         //  find N
-		adjoints[N] = 1.0;                          //  seed aN = 1
-
-		//  backward propagation
-		for (int j = N; j > 0; --j)  //  iterate backwards over tape
-		{
-			if (tape[j].nargs > 0)
-			{
-				//  propagate first argument
-				adjoints[tape[j].idx1] += adjoints[j] * tape[j].der1;
-				if (tape[j].nargs > 1)
-				{
-					//  propagate second argument
-					adjoints[tape[j].idx2] += adjoints[j] * tape[j].der2;
-				}
-			}
-		}
-		return adjoints;
+		Tape::multi = false;
+		Node::numAdj = 1;
 	}
+};
+
+//  Routine: set dimension and get RAII resetter
+inline auto setNumResultsForAAD(const bool multi = false, const size_t numResults = 1)
+{
+	Tape::multi = multi;
+	Node::numAdj = numResults;
+	return make_unique<numResultsResetterForAAD>();
+}
+
+//  Other utilities
+
+//	Put collection on tape
+template <class IT>
+inline void putOnTape(IT begin, IT end)
+{
+	for_each(begin, end, [](Number &n)
+			 { n.putOnTape(); });
+}
+
+//	Convert collection between double and Number or reverse
+template <class It1, class It2>
+inline void convertCollection(It1 srcBegin, It1 srcEnd, It2 destBegin)
+{
+	using destType = remove_reference_t<decltype(*destBegin)>;
+	transform(srcBegin, srcEnd, destBegin,
+			  [](const auto &source)
+			  { return destType(source); });
 }

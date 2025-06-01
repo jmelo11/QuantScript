@@ -1,0 +1,9 @@
+
+The version number needs to be updated manually in:
+
+    QuantLib/configure.ac
+    QuantLib/ql/version.hpp
+
+After modifying configure.ac, running ./autogen.sh and ./configure
+will update the version number in any other file that needs it.
+
