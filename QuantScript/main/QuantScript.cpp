@@ -17,8 +17,9 @@ template <class T>
 void test_product()
 {
 	string s = "X = 3";
-	map<Date, string> mapping = {{0, s}};
-	Product prod;
+        Date today(1, QuantLib::January, 2020);
+        map<Date, string> mapping = {{today, s}};
+        Product prod;
 	prod.parseEvents(mapping.begin(), mapping.end());
 	prod.indexVariables();
 	Debugger d;
@@ -87,10 +88,10 @@ template <class T>
 int evaluation_test()
 {
 	// Inputs
-	map<string, string> macros = {{"STRIKE", "650"}};
-	map<Date, string> events = {{360, "opt pays max(SPOT()-650,0)"}};
-
-	Date today = 0;
+        map<string, string> macros = {{"STRIKE", "650"}};
+        Date today(1, QuantLib::January, 2020);
+        Date eventDate = today + 360;
+        map<Date, string> events = {{eventDate, "opt pays max(SPOT()-650,0)"}};
 	T spot = 700, vol = 0.3, rate = 0.06;
 	unsigned numSim = 1;
 

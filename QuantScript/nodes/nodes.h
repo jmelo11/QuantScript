@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <ql/time/date.hpp>
 
 namespace QuantScript
 {
@@ -11,7 +12,7 @@ namespace QuantScript
     class Visitor;
     class ConstVisitor;
 
-    using Date = int;
+    using Date = QuantLib::Date;
     using ExpressionTree = std::unique_ptr<Node>;
     using Statement = ExpressionTree;
     using Event = std::vector<Statement>;

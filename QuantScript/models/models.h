@@ -5,6 +5,7 @@
 #include <memory>
 #include <stdexcept>
 #include <map>
+#include <ql/time/daycounters/actual360.hpp>
 #include "nodes/nodes.h"
 
 namespace QuantScript
@@ -126,16 +127,17 @@ namespace QuantScript
 		const T &rate() { return myRate; }
 		const T &vol() { return myVol; }
 		// Initialize simulation dates
-		void initSimDates(const std::vector<Date> &simDates) override
-		{
-			myTime0 = simDates[0] == myToday;
-			// Fill array of times
-			for (auto dateIt = simDates.begin();
-				 dateIt != simDates.end();
-				 ++dateIt)
-			{
-				myTimes.push_back(double(*dateIt - myToday) / 360);
-			}
+                void initSimDates(const std::vector<Date> &simDates) override
+                {
+                        myTime0 = simDates[0] == myToday;
+                        QuantLib::Actual360 dc;
+                        // Fill array of times using QuantLib day count
+                        for (auto dateIt = simDates.begin();
+                             dateIt != simDates.end();
+                             ++dateIt)
+                        {
+                                myTimes.push_back(dc.yearFraction(myToday, *dateIt));
+                        }
 			myDt.resize(myTimes.size());
 			myDt[0] = myTimes[0];
 			for (size_t i = 1; i < myTimes.size(); ++i)
