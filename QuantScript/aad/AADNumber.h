@@ -22,7 +22,7 @@ As long as this comment is preserved at the top of the file
 //  The custom number type
 
 #include <algorithm>
-#include "AADTape.h"
+#include <automatic/AADTape.h>
 
 class Number
 {

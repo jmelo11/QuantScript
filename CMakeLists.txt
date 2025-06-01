@@ -34,3 +34,8 @@ if(Boost_FOUND)
 else()
     message(WARNING "Boost not found. Build will fail if required headers are missing.")
 endif()
+
+# Link the updated automatic differentiation library
+find_package(automatic REQUIRED)
+target_include_directories(QuantScript PUBLIC ${automatic_INCLUDE_DIRS})
+target_link_libraries(QuantScript PUBLIC ${automatic_LIBRARIES})

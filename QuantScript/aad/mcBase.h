@@ -20,7 +20,7 @@ As long as this comment is preserved at the top of the file
 //  All the base classes and template algorithms
 //  See chapters 6, 7, 12 and 14
 
-#include "AAD.h"
+#include <automatic/aad.h>
 
 #include <vector>
 #include <memory>
