@@ -4,6 +4,19 @@
 
 Domain-specific language for describing financial cash flows
 
+### Block syntax
+
+`IF` statements can now use curly braces to delimit their body instead of the old
+`THEN/ENDIF` keywords. Both forms remain supported. Example:
+
+```
+IF X > 0 {
+    Y = 1
+} ELSE {
+    Y = 0
+}
+```
+
 ## Pending implementation
 
 1- Pending implementation of variable definition nodes.

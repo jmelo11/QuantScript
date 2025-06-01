@@ -56,67 +56,92 @@ namespace QuantScript
 			// Build and return the top node
 			return buildBinary<NodePays>(lhs, rhs);
 		}
-		static ExpressionTree parseIf(TokIt &cur, const TokIt end)
-		{
-			// Advance to token immediately following "if"
-			++cur;
-			// Check for end
-			if (cur == end)
-				throw script_error("’If’ is not followed by ’then’");
-			// Parse the condition
-			auto cond = parseCondElem(cur, end);
-			// Check that the next token is "then"
-			if (cur == end || *cur != "THEN")
-				throw script_error("’If’ is not followed by ’then’");
-			// Advance over "then"
-			++cur;
-			// Parse statements until we hit "else" or "endIf"
-			std::vector<Statement> stats;
-			while (cur != end && *cur != "ELSE" && *cur != "ENDIF")
-				stats.push_back(parseStatement(cur, end));
-			// Check
-			if (cur == end)
-				throw script_error("’If/then’ is not followed by ’else’ or ’endIf’");
-			// Else: parse the else statements
-			std::vector<Statement> elseStats;
-			int elseIdx = -1;
-			if (*cur == "ELSE")
-			{
-				// Advance over "else"
-				++cur;
-				// Parse statements until we hit "endIf"
-				while (cur != end && *cur != "ENDIF")
-					elseStats.push_back(parseStatement(cur, end));
-				if (cur == end)
-					throw script_error("’If/then/else’ is not followed by ’endIf’");
-				// Record else index
-				elseIdx = stats.size() + 1;
-			}
-			// Finally build the top node
-			auto top = make_node<NodeIf>();
-			top->arguments.resize(1 + stats.size() + elseStats.size());
-			top->arguments[0] = std::move(cond);
-			// Arg[0] = condition
+                static ExpressionTree parseIf(TokIt &cur, const TokIt end)
+                {
+                        // Advance to token immediately following "if"
+                        ++cur;
+                        // Check for end
+                        if (cur == end)
+                                throw script_error("'If' is not followed by condition");
+                        // Parse the condition
+                        auto cond = parseCondElem(cur, end);
 
-			for (size_t i = 0; i < stats.size(); ++i)
-			{
-				// Copy statements, Arg[1..n-1]
-				top->arguments[i + 1] = std::move(stats[i]);
-			};
+                        if (cur == end)
+                                throw script_error("'If' has no body");
 
-			for (size_t i = 0; i < elseStats.size(); ++i)
-			{
-				// Copy else statements, Arg[n..N]
-				top->arguments[i + elseIdx] = std::move(elseStats[i]);
-			}
+                        bool useBraces = false;
+                        if (*cur == "THEN")
+                        {
+                                ++cur;
+                        }
+                        else if (*cur == "{")
+                        {
+                                useBraces = true;
+                                ++cur;
+                        }
+                        else
+                                throw script_error("'If' is not followed by 'then' or '{'");
 
-			top->firstElse = elseIdx;
-			// Advance over endIf and return
-			++cur;
-			return std::move(top);
-			// Explicit move is necessary
-			// because we return a base class pointer
-		};
+                        std::vector<Statement> stats;
+                        while (cur != end && *cur != "ELSE" && *cur != (useBraces ? "}" : "ENDIF"))
+                                stats.push_back(parseStatement(cur, end));
+
+                        if (cur == end)
+                                throw script_error("If block not terminated");
+
+                        std::vector<Statement> elseStats;
+                        int elseIdx = -1;
+
+                        if (*cur == "ELSE")
+                        {
+                                ++cur;
+                                bool elseBraces = false;
+                                if (useBraces)
+                                {
+                                        if (cur == end || *cur != "{")
+                                                throw script_error("Else block must start with '{'");
+                                        elseBraces = true;
+                                        ++cur;
+                                }
+                                while (cur != end && *cur != (elseBraces ? "}" : "ENDIF"))
+                                        elseStats.push_back(parseStatement(cur, end));
+                                if (cur == end)
+                                        throw script_error("Else block not terminated");
+                                if (elseBraces)
+                                        ++cur; // over '}'
+                                else
+                                        ; // ENDIF consumed later
+                                elseIdx = stats.size() + 1;
+                        }
+
+                        auto top = make_node<NodeIf>();
+                        top->arguments.resize(1 + stats.size() + elseStats.size());
+                        top->arguments[0] = std::move(cond);
+
+                        for (size_t i = 0; i < stats.size(); ++i)
+                                top->arguments[i + 1] = std::move(stats[i]);
+
+                        for (size_t i = 0; i < elseStats.size(); ++i)
+                                top->arguments[i + elseIdx] = std::move(elseStats[i]);
+
+                        top->firstElse = elseIdx;
+
+                        if (*cur == "ENDIF")
+                        {
+                                ++cur;
+                        }
+                        else if (*cur == "}")
+                        {
+                                ++cur;
+                                if (elseIdx != -1 && cur != end && *cur == "ENDIF")
+                                        ++cur; // support mixed '}' before ENDIF if else had no braces
+                        }
+                        else
+                        {
+                                // if we reached here, termination token is part of else parsing
+                        }
+                        return std::move(top);
+                };
 		static ExpressionTree parseVar(TokIt &cur)
 		{
 			// Check that the variable name starts with a letter
