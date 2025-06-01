@@ -27,11 +27,11 @@ As long as this comment is preserved at the top of the file
 
 #if AADET
 
-#include "AADExpr.h"
+#include <automatic/AADExpr.h>
 
 #else
 
-#include "AADNumber.h"
+#include <automatic/AADNumber.h>
 
 #endif
 

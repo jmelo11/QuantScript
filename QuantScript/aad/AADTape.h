@@ -24,7 +24,7 @@ As long as this comment is preserved at the top of the file
 //  Unchanged for AADET of chapter 15
 
 #include "blocklist.h"
-#include "AADNode.h"
+#include <automatic/AADNode.h>
 
 constexpr size_t BLOCKSIZE  = 16384;		//	Number of nodes
 constexpr size_t ADJSIZE    = 32768;		//	Number of adjoints

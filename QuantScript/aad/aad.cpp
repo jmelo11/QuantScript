@@ -14,7 +14,7 @@ Wiley, 2018
 As long as this comment is preserved at the top of the file
 */
 
-#include "AAD.h"
+#include <automatic/aad.h>
 #include <algorithm>
 
 //  Statics

@@ -22,7 +22,7 @@ As long as this comment is preserved at the top of the file
 //  Defines expressions and the Number type
 
 #include <algorithm>
-#include "AADTape.h"
+#include <automatic/AADTape.h>
 
 //  Base CRTP expression class 
 //      Note: overloaded operators catch all expressions and nothing else
