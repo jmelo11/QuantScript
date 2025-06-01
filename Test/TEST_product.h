@@ -9,9 +9,9 @@ namespace QuantScript {
 	void test_product() {
 		std::string s = "y = max(log(1+6-6),1) "
 			"x = 1				"
-			"if y<2 then			"
+			"if y<2 {			"
 			" x = 2				"
-			" endif				";
+			" }				";
 
 		std::map<Date, std::string> mapping = { {1,s} };
 		Product prod;

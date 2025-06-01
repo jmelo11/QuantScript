@@ -5,7 +5,7 @@ namespace QuantScript {
 	std::vector<std::string> tokenize(const std::string& str)
 	{
 		// Regex matching tokens of interest
-		static const std::regex r("[\\w.]+|[/-]|,|[\\(\\)\\+\\*\\^]|!=|>=|<=|[<>=]");
+                static const std::regex r("[\\w.]+|[/-]|,|[\\(\\)\\{\\}\\+\\*\\^]|!=|>=|<=|[<>=]");
 
 		// Result, with max possible size reserved
 		std::vector<std::string> v;
